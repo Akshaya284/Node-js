@@ -1,5 +1,7 @@
 const bcrypt = require("bcryptjs");
 const userServices = require("../Services/userServices");
+const User = require('../Models/userModel');
+
 
 exports.register = (req, res, next) => {
   const { password, confirmPassword } = req.body;
@@ -24,9 +26,9 @@ exports.register = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, mobileNumber, password } = req.body;
 
-  userServices.login({ email, password }, (error, results) => {
+  userServices.login({ email, mobileNumber, password }, (error, results) => {
     if (error) {
       return next(error);
     }
@@ -36,6 +38,29 @@ exports.login = (req, res, next) => {
     });
   });
 };
+
+exports.getUserProfile = (req, res, next) => {
+    const userId = req.user.data;
+    console.log(req.user,"userId");
+
+    User.findById(userId).then((user)=>{
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+        const userProfile = {
+            username: user.username,
+            email: user.email,
+            mobileNumber: user.mobileNumber,
+          };
+
+        return res.status(201).send({
+            message: "User profile retreived successfully",
+            data : userProfile
+    })
+    }).catch((error)=>{
+        return next(error);
+    })
+}
 
 
 

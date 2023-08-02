@@ -11,12 +11,14 @@ const UserSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    lowercase: true
   },
   mobileNumber: {
     type : Number,
     required: true,
     unique: true,
-    length: 10
+    minlength: [10,"Mobile number should consist 10 digits"],
+    maxlength:[10,"Mobile number should consist 10 digits" ]
   },
   password: {
     type: String,
@@ -27,7 +29,14 @@ const UserSchema = new Schema({
     required: true,
   },
 });
-
+UserSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+    delete returnedObject.confirmPassword;
+  },
+});
 
 UserSchema.plugin(uniqueValidator, {
   message: "Error, {PATH} already exists.",

@@ -3,12 +3,23 @@ const bcrypt = require("bcryptjs");
 const auth = require("../Middlewares/auth");
 
 
-async function login({ email, password }, callback) {
-  const user = await User.findOne({ email });
+async function login({ email, mobileNumber, password }, callback) {
+  // const user = await User.findOne({ email });
+  let user;
+  
+  if (email) {
+    user = await User.findOne({ email });
+  } else if (mobileNumber) {
+    user = await User.findOne({ mobileNumber });
+  } else {
+    return callback({
+      message: "Please provide either email or mobile number for login.",
+    });
+  }
 
   if (user != null) {
     if (bcrypt.compareSync(password, user.password)) {
-      const token = auth.generateAccessToken(email);
+      const token = auth.generateAccessToken(user._id.toString());
       return callback(null, { ...user.toJSON(), token });
     } else {
       return callback({
