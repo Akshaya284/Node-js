@@ -29,6 +29,7 @@ const UserSchema = new Schema({
     required: true,
   },
 });
+
 UserSchema.set("toJSON", {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();

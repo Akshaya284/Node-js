@@ -1,6 +1,7 @@
 const User = require("../Models/userModel");
 const bcrypt = require("bcryptjs");
 const auth = require("../Middlewares/auth");
+const Session = require('../Models/sessionModel')
 
 
 async function login({ email, mobileNumber, password }, callback) {
@@ -19,8 +20,14 @@ async function login({ email, mobileNumber, password }, callback) {
 
   if (user != null) {
     if (bcrypt.compareSync(password, user.password)) {
-      const token = auth.generateAccessToken(user._id.toString());
-      return callback(null, { ...user.toJSON(), token });
+      const session = new Session({
+        userId : user._id,
+        loggedInAt : new Date (),
+      });  
+      session.save().then(()=>{
+        const token = auth.generateAccessToken(user._id.toString(), session._id.toString());
+        return callback(null, { ...user.toJSON(), token });
+      });
     } else {
       return callback({
         message: "Invalid email/Password!",
@@ -42,17 +49,42 @@ async function register(params, callback) {
       },
       ""
     );
-  }
+  } 
 
   const user = new User(params);
   user
     .save()
     .then((response) => {
-      return callback(null, response);
+      const session = new Session ({
+        userId : response._id,
+        loggedInAt : new Date(),
+      });
+      session.save().then(()=>{
+        const token = auth.generateAccessToken(response._id.toString(), session._id.toString());
+        return callback(null, {...response.toJSON(), token });
+      });
     })
     .catch((error) => {
       return callback(error);
     });
+};
+
+async function logout(userId, sessionId, callback) {
+  Session.findByIdAndUpdate(
+    sessionId,  
+    {status : "inactive"},
+    {new : true}
+  )
+  .then((updatedSession)=> {
+    if(!updatedSession){
+      return callback({ message : "Session not found"});
+    }
+    return callback(null, {message : "Logout Successfull."});
+  })
+  .catch((error)=>{
+    console.error("Error updating session:", error);
+    return callback(error);
+  })
 }
 
 
@@ -60,4 +92,5 @@ async function register(params, callback) {
 module.exports = {
   login,
   register,
+  logout
 };

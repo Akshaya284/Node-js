@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const Session = require('../Models/sessionModel')
 
 function authenticateToken(req, res, next) {  
   const authHeader = req.headers['authorization'] 
@@ -10,13 +11,26 @@ function authenticateToken(req, res, next) {
     console.log(err);
     if (err) return res.sendStatus(403);
     const userId = decodedToken.userId;
-    req.user = { data: userId };
-    next();
-  });
+    const sessionId = decodedToken.sessionId
+
+    Session.findOne({ _id: sessionId, userId, status: "active" })
+      .then((session) => {
+        if (!session) {
+          return res.status(403).json({ message: "Access denied." });
+        }
+
+        req.user = { userId, sessionId };
+        next();
+      })
+      .catch((error) => {
+        console.error("Error validating session:", error);
+        return res.sendStatus(500);
+      });
+  })
 }
 
-function generateAccessToken(userId) {
-  return jwt.sign({ userId: userId }, "process.env.TOKEN_SECRET", {
+function generateAccessToken(userId, sessionId) {
+  return jwt.sign({ userId, sessionId }, "process.env.TOKEN_SECRET", {
     expiresIn: "1h",
   });
 }
