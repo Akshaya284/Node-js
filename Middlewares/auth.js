@@ -16,7 +16,7 @@ function authenticateToken(req, res, next) {
     Session.findOne({ _id: sessionId, userId, status: "active" })
       .then((session) => {
         if (!session) {
-          return res.status(403).json({ message: "Access denied." });
+          return res.status(401).json({ message: "Unauthorized." });
         }
 
         req.user = { userId, sessionId };
