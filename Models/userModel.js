@@ -28,7 +28,13 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String,
+    enum: ["user", "admin"], 
+    // default: "user", 
+  },
 });
+
 
 UserSchema.set("toJSON", {
   transform: (document, returnedObject) => {

@@ -22,10 +22,10 @@ async function login({ email, mobileNumber, password }, callback) {
     if (bcrypt.compareSync(password, user.password)) {
       const session = new Session({
         userId : user._id,
-        loggedInAt : new Date (),
+        loggedInAt : new Date (), 
       });  
       session.save().then(()=>{
-        const token = auth.generateAccessToken(user._id.toString(), session._id.toString());
+        const token = auth.generateAccessToken(user._id.toString(), session._id.toString(), user.role.toString());
         return callback(null, { ...user.toJSON(), token });
       });
     } else {
@@ -60,7 +60,7 @@ async function register(params, callback) {
         loggedInAt : new Date(),
       });
       session.save().then(()=>{
-        const token = auth.generateAccessToken(response._id.toString(), session._id.toString());
+        const token = auth.generateAccessToken(response._id.toString(), session._id.toString(), response.role.toString());
         return callback(null, {...response.toJSON(), token });
       });
     })
