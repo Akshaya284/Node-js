@@ -44,7 +44,7 @@ app.use(express.json());
 
 app.use("/users", require("./Routes/userRoutes"));
 app.use("/coupons", require("./Routes/couponRoutes"));
-app.use('/uploads', express.static('./uploads'));
+app.use("/products", require('./Routes/productRoutes'));
 
 app.use(errors.errorHandler);
 

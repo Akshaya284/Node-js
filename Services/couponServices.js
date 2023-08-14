@@ -22,16 +22,16 @@ async function createCoupon(params, callback) {
         if (params.offerPoster) {
             result.offerPoster = params.offerPoster; // Store the image path in the result
           }
-
+ 
         return callback(null, { ...response.toJSON() });
     } catch (error) {
         return callback(error);
     }
 }
 
-async function updateCoupon(couponId, updateData) {
+async function updateCoupon(couponId, updatedFields) {
     try {
-        const existingCoupon = await Coupon.findByIdAndUpdate(couponId, updateData, { new: true });
+        const existingCoupon = await Coupon.findByIdAndUpdate(couponId, updatedFields, { new: true });
         if (!existingCoupon) {
             throw new Error("Coupon not found");
         }

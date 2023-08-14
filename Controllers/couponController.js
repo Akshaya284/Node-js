@@ -1,7 +1,7 @@
 const couponServices = require("../Services/couponServices");
 
 const multer = require("multer");
-const upload = multer({ dest: "uploads/",
+const upload = multer({ dest: "uploads",
 fileFilter: function (req, file, cb) {
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
       cb(null, true);
@@ -44,35 +44,39 @@ exports.createCoupon = [
 
 }];
 
-exports.updateCoupon = async (req, res, next) => {
-    const couponId = req.params.id;
-    const { couponCode, offerName, status, type, startDate, endDate } = req.body;      
-    const userRole = req.user.role; 
-    console.log(couponCode, offerName, "couponCode before validation");
+exports.updateCoupon = [
+    upload.single("offerPoster"), 
+    async (req, res) => {
+      const couponId = req.params.id;
+      const userRole = req.user.role;
 
-    if (!couponCode || couponCode.trim() === "" || couponCode === null) {
-        return res.status(400).json({ message: "Coupon code is required." });
-    }
+      if(userRole !== "admin") {
+        res.status(404).json({message : "Unauthorized. Only admins can edit coupons"})
+      };
 
-    console.log(couponCode, offerName,req.file, "couponCode after validation");
-
-    if (userRole !== "admin") {
-        return res.status(403).json({ message: "Unauthorized. Only admins can edit coupons." });
-      }
-
-      const updateData = { couponCode, offerName, status, type, startDate, endDate };
+      const { couponCode, offerName, status, startDate, endDate, type } = req.body;
+  
+      const updatedFields = {
+        couponCode,
+        offerName,
+        status,
+        startDate,
+        endDate,
+        type
+      };
+  
       if (req.file) {
-        updateData.offerPoster = req.file.path; 
+        updatedFields.offerPoster = req.file.path;
       }
-
-    try {
-        const result = await couponServices.updateCoupon(couponId, updateData);
-        return res.status(200).json({ message: "Coupon updated successfully.", data: result });
-    } catch (error) {
-        console.error("Error updating coupon:", error);
-        return res.status(500).json({ message: "Error updating coupon.", error: error.message });
+  
+      try {
+        const updatedProduct = await couponServices.updateCoupon(couponId, updatedFields);
+        return res.status(200).json({ message: "Coupon updated successfully", data: updatedProduct });
+      } catch (error) {
+        return res.status(500).json({ message: "Error updating coupon", error: error.message });
+      }
     }
-}
+  ];
 
 exports.getCouponById = async (req, res, next) => {
     const couponId = req.params.id;
