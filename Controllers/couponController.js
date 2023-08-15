@@ -51,7 +51,7 @@ exports.updateCoupon = [
       const userRole = req.user.role;
 
       if(userRole !== "admin") {
-        res.status(404).json({message : "Unauthorized. Only admins can edit coupons"})
+        res.status(401).json({message : "Unauthorized. Only admins can edit coupons"})
       };
 
       const { couponCode, offerName, status, startDate, endDate, type } = req.body;
@@ -107,7 +107,7 @@ exports.getCoupons = async (req, res, next) => {
     try {
         const coupons = await couponServices.getCoupons({ sortBy, search });
         if (coupons.length === 0) {
-            return res.status(401).json({message : "coupon not found"})
+            return res.status(404).json({message : "coupon not found"})
         }
         return res.status(200).json({ message: "Coupons retrieved successfully.", data: coupons });
     } catch (error) {
