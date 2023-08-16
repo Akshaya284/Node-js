@@ -41,7 +41,6 @@ exports.login = (req, res, next) => {
 
 exports.getUserProfile = (req, res, next) => {
   const userId = req.user.userId;
-  console.log(req.user, "userId");
 
   User.findById(userId)
     .then((user) => {

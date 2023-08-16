@@ -65,8 +65,8 @@ async function getProducts( search ) {
 
        
 
-        const coupons = await Product.find(query);
-        return coupons.map(coupon => coupon.toJSON());
+        const products = await Product.find(query);
+        return products.map(product => product.toJSON());
 
     } catch (error) {
         throw error;

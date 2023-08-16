@@ -1,8 +1,8 @@
 const productServices = require("../Services/productServices");
-const multer = require('multer');
+const multer = require('multer'); 
 
 const upload = multer({
-  dest: "uploads",
+  dest: "./public/uploads",
   fileFilter: function (req, file, cb) {
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
       cb(null, true);
@@ -40,7 +40,8 @@ exports.createProduct = [
       });
 
       if (req.file) {
-        result.productImage = req.file.path;
+        result.productImage = req.file.originalname;
+        console.log(req.file,"file request");
       }
 
       return res.status(201).json({ message: "Product created successfully", data: result });
@@ -77,7 +78,7 @@ exports.editProduct = [
       };
 
       if (req.file) {
-        updatedFields.productImage = req.file.path;
+        updatedFields.productImage = req.file.originalname;
       }
       const updatedProduct = await productServices.editProduct(productId, updatedFields);
       return res.status(200).json({ message: "Product updated successfully", data: updatedProduct });
@@ -92,7 +93,6 @@ exports.getProductById = async (req, res, next) => {
 
   try {
     const product = await productServices.getProductById(productId);
-    console.log(product,"product");
     if (product.deleted === true) {
       return res.status(401).json({message : "Product has been deleted and cannot be viewed" })
     }

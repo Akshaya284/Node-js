@@ -45,7 +45,8 @@ app.use(express.json());
 app.use("/users", require("./Routes/userRoutes"));
 app.use("/coupons", require("./Routes/couponRoutes"));
 app.use("/products", require('./Routes/productRoutes'));
-
+app.use("/banners", require('./Routes/bannerRoutes'));
+ 
 app.use(errors.errorHandler);
 
 app.listen(process.env.port || 3000, function () {
