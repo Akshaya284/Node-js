@@ -5,7 +5,6 @@ const Session = require('../Models/sessionModel')
 
 
 async function login({ email, mobileNumber, password }, callback) {
-  // const user = await User.findOne({ email });
   let user;
   
   if (email) {

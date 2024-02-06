@@ -34,7 +34,7 @@ function authenticateToken(req, res, next) {
 
 function generateAccessToken(userId, sessionId, role) {
   return jwt.sign({ userId, sessionId, role }, "process.env.TOKEN_SECRET", {
-    expiresIn: "1h",
+    expiresIn: "2h",
   });
 }
 
